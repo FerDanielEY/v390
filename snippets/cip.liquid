@@ -1,0 +1,57 @@
+<script>
+  
+let newsletterId = '{{ settings.cip_newsletter_id }}';
+
+let dataSource = '{{ settings.cip_artist }}_{{ settings.cip_campaign }}_{% if page_title contains 'Information' and page_title contains 'Checkout' %}Checkout{% else %}Footer{% endif %}_Shopify';
+
+let ref_url = '{{ shop.url }}';
+
+const email = document.getElementById('checkout_email_or_phone').value;
+
+let cip_data = {
+  'email': email,
+  'newsletterId': newsletterId,
+  'dataSource': dataSource,
+  'ref_url': ref_url
+};
+
+
+(function($) {
+  $(document).on("page:load page:change", function() {
+    if (Shopify.Checkout.step === "contact_information") {
+      const form_cip = document.querySelector('body > div.content > div > div > main > div.step > form');
+
+      form_cip.addEventListener('submit', function() {
+      
+        const email = document.getElementById('checkout_email_or_phone').value;
+        const newsletterId = '{{ settings.newsletter_id }}';
+        const dataSource = '{{ settings.cip_artist }}_{{ settings.cip_campaign }}_{% if page_title contains 'Information' and page_title contains 'Checkout' %}Checkout{% else %}Footer{% endif %}_Shopify';
+        const ref_url = '{{ shop.url }}';
+
+      
+        const url = `https://reqres.in/api/users`;
+      
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      
+        console.log('Submitted Form ', url)
+      });
+    }
+  });
+})(Checkout.$);
+
+console.log('CIP loaded')
+
+</script>
