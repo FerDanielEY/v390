@@ -1,56 +1,110 @@
 <script>
+
+{% comment %}
+
+    Renders CIP integration
+
+    Accepts:
+    - newsletter_section_id: {string} Newsletter Section ID
+    - footer_section_id: {string} Footer Section ID
+
+{% endcomment %}
+
   
-let newsletterId = '{{ settings.cip_newsletter_id }}';
+{% comment %}
 
-let dataSource = '{{ settings.cip_artist }}_{{ settings.cip_campaign }}_{% if page_title contains 'Information' and page_title contains 'Checkout' %}Checkout{% else %}Footer{% endif %}_Shopify';
+  -- TEST Variables --
 
-let ref_url = '{{ shop.url }}';
+  let newsletterId = '{{ settings.cip_newsletter_id }}';
+  let dataSource = '{{ settings.cip_artist }}_{{ settings.cip_campaign }}_{% if page_title contains 'Information' and page_title contains 'Checkout' %}Checkout{% else %}Footer{% endif %}_Shopify';
+  let ref_url = '{{ shop.url }}';
+  const email = document.getElementById('checkout_email_or_phone').value;
+  
+  let cip_data = {
+    'email': email,
+    'newsletterId': newsletterId,
+    'dataSource': dataSource,
+    'ref_url': ref_url
+  };
+{% endcomment %}
 
-const email = document.getElementById('checkout_email_or_phone').value;
-
-let cip_data = {
-  'email': email,
-  'newsletterId': newsletterId,
-  'dataSource': dataSource,
-  'ref_url': ref_url
-};
-
-
-(function($) {
-  $(document).on("page:load page:change", function() {
-    if (Shopify.Checkout.step === "contact_information") {
-      const form_cip = document.querySelector('body > div.content > div > div > main > div.step > form');
-
-      form_cip.addEventListener('submit', function() {
-      
-        const email = document.getElementById('checkout_email_or_phone').value;
-        const newsletterId = '{{ settings.newsletter_id }}';
-        const dataSource = '{{ settings.cip_artist }}_{{ settings.cip_campaign }}_{% if page_title contains 'Information' and page_title contains 'Checkout' %}Checkout{% else %}Footer{% endif %}_Shopify';
-        const ref_url = '{{ shop.url }}';
-
-      
-        const url = `https://reqres.in/api/users`;
-      
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email })
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Success:', data);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      
-        console.log('Submitted Form ', url)
-      });
+let form_check = document.getElementById('contact_form');
+  
+{% if page_title contains 'Information' and page_title contains 'Checkout' %}
+  (function($) {
+    $(document).on("page:load page:change", function() {
+      if (Shopify.Checkout.step === "contact_information") {
+        let form_cip = document.querySelector('body > div.content > div > div > main > div.step > form');
+        form_cip.addEventListener('submit', cip_post_request);
+        console.log('CIP Checkout');
+      }
+    });
+  })(Checkout.$);
+{% else %}
+  {% comment %}   Prevents 'cip_post_request' function to load on the rest of the Checkout {% endcomment %}
+  {% unless page_title contains 'Checkout' %}
+    if (form_check) {
+      let form_cip = document.querySelector('#contact_form');
+      form_cip.addEventListener('submit', cip_post_request);
+      console.log('CIP Newsletter Section');
+    } else {
+      let form_cip = document.getElementById('ContactFooter');
+      form_cip.addEventListener('submit', cip_post_request);
+      console.log('CIP Footer Section');
     }
+  {% endunless %}
+{% endif %}
+  
+  
+
+{% comment %}   Actual POST Request Function and variables declaration {% endcomment %}
+
+function cip_post_request() {
+  
+  {% comment %} 
+    - Declaration of 'form_of_sign_up' tag required in dataSource variable. 
+    - Declaration of 'email_value' variable required in email variable.
+  {% endcomment %}
+  
+  {% if page_title contains 'Information' and page_title contains 'Checkout' %}
+    {% assign form_of_sign_up = 'Checkout' %}
+    const email_value = document.getElementById('checkout_email_or_phone').value;
+  {% elsif newsletter_section_id %}
+    {% assign form_of_sign_up = 'NewsletterSection' %}
+    const email_value = document.getElementById('NewsletterForm--{{ newsletter_section_id }}').value;
+  {% elsif footer_section_id %}
+  {% assign form_of_sign_up = 'FooterSection' %}
+    const email_value = document.getElementById('NewsletterForm--{{ footer_section_id }}').value;
+  {% endif %}
+
+  {% comment %} Payload variables {% endcomment %}
+  const email = email_value
+  const newsletterId = '{{ settings.cip_newsletter_id }}';
+  const dataSource = '{{ settings.cip_artist }}_{{ settings.cip_campaign }}_{{ form_of_sign_up }}_Shopify';
+  const ref_url = '{{ shop.url }}';
+
+  console.log(email)
+  console.log(newsletterId)
+  console.log(dataSource)
+  console.log(ref_url)
+  
+  const url = `https://signup.wmg.com/register`;
+
+  {% comment %} POST Request {% endcomment %}
+  fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({ email, newsletterId, dataSource, ref_url })
+  })
+  .then(response => response.text())
+  .then(data => {
+    console.log('Success:', data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
   });
-})(Checkout.$);
+
+  console.log('Submitted Form ', url)
+}
 
 console.log('CIP loaded')
 
