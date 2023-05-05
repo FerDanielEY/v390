@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="{{ locale }}" dir="{{ direction }}" class="{{ checkout_html_classes }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, user-scalable=0"
+    >
+    <meta name="referrer" content="origin">
+
+    {%- if settings.favicon -%}
+      <link rel="shortcut icon" href="{{ settings.favicon | img_url: '96x96' }}" type="image/png">
+    {%- endif -%}
+
+    <title>{{ page_title }}</title>
+
+    {{ content_for_header }}
+
+    {{ checkout_stylesheets }}
+
+    {%- if settings.store_theme == 'sandbox' -%}
+      {{ 'store-sandbox.css' | asset_url | stylesheet_tag }}
+    {%- else -%}
+      {{ 'store-default.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
+
+    {{ checkout_scripts }}
+
+    {% if settings.adobe_launch_enabled == true %}
+      {%- render 'adobe_data_layer.liquid' -%}
+    {% endif %}
+
+    <style type="text/css">
+      {% assign no_ship_countries = "AL, AQ, AX, BF, BG, BJ, BL, BV, BY, CC, CD, CG, CI, CM, CS, CU, CV, CX, DZ, EG, EH, GA, GH, GM, GN, GQ, GU, GW, HM, ID, IL, IO, IQ, IR, KH, LR, LT, MA, MD, ME, MK, ML, MR, MY, NE, NF, NG, NU, PK, PN, PS, RO, RU, SJ, SL, SN, ST, TD, TG, TK, TL, TN, TR, UA, UM, VA, VI, VN, YE" | split: ', ' %}
+      {% for code in no_ship_countries %}
+        {% if forloop.last %}
+          select#checkout_shipping_address_country option[data-code="{{ code }}"] {
+        {% else %}
+          select#checkout_shipping_address_country option[data-code="{{ code }}"],
+        {% endif %}
+      {% endfor %}
+        display: none;
+      }
+    </style>
+
+    {{ 'section-footer.css' | asset_url | stylesheet_tag }}
+
+    {% if settings.onetrust_enabled == true and settings.onetrust_id != blank %}
+      {% comment %}theme-check-disable{% endcomment %}
+      <!-- OneTrust Cookies Consent Notice start -->
+      <script
+        id="onetrustcdn"
+        src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"
+        data-document-language="true"
+        type="text/javascript"
+        charset="UTF-8"
+        data-domain-script="{{ settings.onetrust_id }}"
+      ></script>
+      <script type="text/javascript">
+        function OptanonWrapper() {
+          var allLinks = document.querySelectorAll('a[href*="https://www.wminewmedia.com/cookies-policy/"]:not([href*="?ot="])');
+          for(i = 0; i < allLinks.length; i++) {
+                    let href = allLinks[i].href;
+                  href = href + '?ot=' + document.getElementById('onetrustcdn').getAttribute('data-domain-script') + '&url=' + window.location.hostname;
+                  allLinks[i].setAttribute("href", href);
+                    allLinks[i].setAttribute("target", "_blank");
+          }
+          var eOT = new Event("OneTrustGroupsUpdated");
+          document.dispatchEvent(eOT);
+        }
+      </script>
+      <link rel="stylesheet" type="text/css" href="https://www.wminewmedia.com/cookies-policy/onetrust/ot.css">
+      <!-- OneTrust Cookies Consent Notice end -->
+      {% comment %}theme-check-enable{% endcomment %}
+    {% endif %}
+  </head>
+  <body class="checkout store--{{ settings.store_theme }}">
+    {{ skip_to_content_link }}
+
+    <header class="banner" data-header role="banner">
+      <div class="wrap">
+        {{ content_for_logo }}
+      </div>
+    </header>
+
+    {{ order_summary_toggle }}
+    <div class="content" data-content>
+      <div class="wrap">
+        <div class="main">
+          <header class="main__header" role="banner">
+            {{ content_for_logo }}
+            {{ breadcrumb }}
+            {{ alternative_payment_methods }}
+          </header>
+          <main class="main__content" role="main">
+            {{ content_for_layout }}
+          </main>
+          {% comment %}
+            <footer class="main__footer" role="contentinfo">
+              {{ content_for_footer }}
+            </footer>
+          {% endcomment %}
+        </div>
+        <aside class="sidebar" role="complementary">
+          <div class="sidebar__header">
+            {{ content_for_logo }}
+          </div>
+          <div class="sidebar__content">
+            {{ content_for_order_summary }}
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    {% if settings.community_enabled == true %}
+      <script src="https://frontend-assets.community.com/shopify/checkout-optin.js" type="text/javascript"></script>
+    {% endif %}
+
+    {{ tracking_code }}
+
+    {% if settings.onetrust_enabled == true %}
+      <footer>
+        <div class="footer__copyright caption">
+          <div class="onetrust__wrapper">
+            <a href="https://privacy.wmg.com/ecom/privacy-policy" class="link link--text" target="_blank"
+              >Privacy Policy</a
+            >
+            <a href="https://privacy.wmg.com/wea/terms-of-use" class="link link--text" target="_blank">Terms of Use</a>
+            <a href="https://www.wminewmedia.com/cookies-policy/" class="link link--text" target="_blank"
+              >Cookies Policy</a
+            >
+            <a class="ot-sdk-show-settings link link--text " style="cursor:pointer">Cookies Settings</a>
+          </div>
+        </div>
+      </footer>
+    {% endif %}
+    {% comment %}Added by Fernando Daniel at EY on March 1st, 2023{% endcomment %}
+    {% if settings.checkout_popup_enabled == true %}
+      {%- render 'modal-checkout.liquid' -%}
+    {% endif %}
+  </body>
+
+  {% comment %}Added by Fernando Daniel at EY on April 20, 2023{% endcomment %}
+  {% if settings.privacy_policy_label_enabled == true %}
+    {% render 'privacy-policy-label-checkout' %}
+  {% endif %}
+
+  {% comment %}Added by Fernando Daniel at EY on May 2th, 2023{% endcomment %}
+  {% if checkout.buyer_accepts_marketing %}
+    {% if settings.cip_enabled == true %}
+      {% render 'cip' %}
+    {% endif %}
+  {% endif %}
+
+  <script src="{{ 'alphanumeric-validation.js' | asset_url }}" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    
+    let countries = {{ no_ship_countries | json }}
+
+    countries.forEach( c => {
+      let country = document.querySelector(`select#checkout_shipping_address_country [data-code="${c}"]`)
+      if (country) { country.remove() }
+    })
+
+  </script>
+</html>
