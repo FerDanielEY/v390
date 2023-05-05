@@ -1,0 +1,357 @@
+{{ 'component-newsletter.css' | asset_url | stylesheet_tag }}
+{{ 'newsletter-section.css' | asset_url | stylesheet_tag }}
+
+<!-- TOP classes -->
+<style>
+  .newsletter.top {
+    background: #f1f2f3;
+    padding: 0;
+    position: relative;
+    margin: 100px 0;
+  }
+  .newsletter.top:before {
+    background-image: url(https://cdn.shopify.com/s/files/1/0731/5888/5695/files/lp-vessel.png?v=1678958338);
+    background-repeat: no-repeat;
+    background-size: contain;
+    bottom: auto;
+    content: "";
+    display: block;
+    height: 200px;
+    left: 0;
+    margin: -100px 0 0 -50px;
+    position: absolute;
+    top: 50%;
+    width: 200px;
+    z-index: 2;
+  }
+  .newsletter.top:after {
+    background-image: url(https://cdn.shopify.com/s/files/1/0731/5888/5695/files/lp-red.png?v=1678958338);
+    background-repeat: no-repeat;
+    background-size: contain;
+    bottom: auto;
+    content: "";
+    display: block;
+    height: 200px;
+    left: 0;
+    margin: -100px 0 0 50px;
+    position: absolute;
+    top: 50%;
+    width: 200px;
+    z-index: 2;
+  }
+  .top .newsletter__wrapper:before {
+    background-image: url(https://cdn.shopify.com/s/files/1/0731/5888/5695/files/lp-yellow.png?v=1678958338);
+    background-repeat: no-repeat;
+    background-size: contain;
+    bottom: auto;
+    content: "";
+    display: block;
+    height: 200px;
+    left: auto;
+    margin: -100px -50px 0 0;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 200px;
+    z-index: 2;
+  }
+  .top .newsletter__wrapper:after {
+    background-image: url(https://cdn.shopify.com/s/files/1/0731/5888/5695/files/lp-green.png?v=1678958338);
+    background-repeat: no-repeat;
+    background-size: contain;
+    bottom: auto;
+    content: "";
+    display: block;
+    height: 200px;
+    left: auto;
+    margin: -100px 50px 0 0;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 200px;
+    z-index: 2;
+  }
+  .top .newsletter__wrapper .email-signup__title {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 3.6px;
+    line-height: 21px;
+    margin: 0 0 10px;
+    padding: 0;
+    text-transform: uppercase;
+  }
+    .newsletter-form__message--success {
+    position: relative !important;
+    padding-bottom: 10px;
+  }
+  .newsletter-form {
+    flex-direction: column !important;
+  }
+  /*   Large screen  */
+  @media only screen and (min-width: 1023px) {
+    .newsletter.top {
+      overflow-x: hidden;
+    }
+  }
+  /*   Tab screen  */
+  @media screen and (min-width: 750px) {
+    .caption-width {
+        margin: 0 auto;
+        max-width: 36rem;
+    }
+  }
+  /*   Mobile screen  */
+  @media only screen and (max-width: 1023px) {
+    .newsletter.top:before {
+        height: 150px;
+        left: 50%;
+        margin-left: -30px;
+        top: 25px;
+        width: 150px;
+        z-index: -2;
+    }
+    .top .newsletter__wrapper:before {
+        bottom: -75px;
+        height: 150px;
+        left: 50%;
+        margin-left: -120px;
+        top: auto;
+        width: 150px;
+        z-index: -2;
+    }
+    .top .newsletter__wrapper:after {
+        bottom: -75px;
+        height: 150px;
+        left: 50%;
+        margin-left: -30px;
+        top: auto;
+        width: 150px;
+        z-index: -1;
+    }
+    .newsletter.top:after {
+        height: 150px;
+        left: 50%;
+        margin-left: -120px;
+        top: 25px;
+        width: 150px;
+        z-index: -1;
+    }
+  }
+</style>
+
+{% style %}
+  #shopify-section-{{section.id}} .gradient {
+    background-color: rgba(var(--color-background), {{ section.settings.background_opacity }})
+  }
+{% endstyle %}
+
+<div class="newsletter center{% if section.settings.full_width == false %} newsletter--narrow page-width{% endif %}{% if shop.name == 'Twenty One Pilots' %} top{% endif %}">
+  <div class="newsletter__wrapper color-{{ section.settings.color_scheme }} gradient">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when '@app' -%}
+          {% render block %}
+        {%- when 'heading' -%}
+          <h2
+            class="h1{% if shop.name == 'Twenty One Pilots' %} email-signup__title{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {{ block.settings.heading | escape }}
+          </h2>
+        {%- when 'paragraph' -%}
+          <div class="newsletter__subheading rte" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+        {%- when 'email_form' -%}
+          <div {{ block.shopify_attributes }}>
+            {% form 'customer', class: 'newsletter-form' %}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <div class="newsletter-form__field-wrapper">
+                <div class="field">
+                  <input
+                    id="NewsletterForm--{{ section.id }}"
+                    type="email"
+                    name="contact[email]"
+                    class="field__input"
+                    value="{{ form.email }}"
+                    aria-required="true"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    autocomplete="email"
+                    {% if form.errors %}
+                      autofocus
+                      aria-invalid="true"
+                      aria-describedby="Newsletter-error--{{ section.id }}"
+                    {% elsif form.posted_successfully? %}
+                      aria-describedby="Newsletter-success--{{ section.id }}"
+                    {% endif %}
+                    placeholder="{{ 'newsletter.label' | t }}"
+                    required
+                  >
+                  <label class="field__label" for="NewsletterForm--{{ section.id }}">
+                    {{ 'newsletter.label' | t }}
+                  </label>
+                  <button
+                    type="submit"
+                    class="newsletter-form__button field__button"
+                    name="commit"
+                    id="Subscribe"
+                    aria-label="{{ 'newsletter.button_label' | t }}"
+                  >
+                    {% render 'icon-arrow' %}
+                  </button>
+                </div>
+                {%- if form.errors -%}
+                  <small class="newsletter-form__message form__message" id="Newsletter-error--{{ section.id }}">
+                    {%- render 'icon-error' -%}
+                    {{- form.errors.translated_fields.email | capitalize }}
+                    {{ form.errors.messages.email -}}
+                  </small>
+                {%- endif -%}
+              </div>
+              {%- if form.posted_successfully? -%}
+                <h3
+                  class="newsletter-form__message newsletter-form__message--success form__message"
+                  id="Newsletter-success--{{ section.id }}"
+                  tabindex="-1"
+                  autofocus
+                >
+                  {% render 'icon-success' -%}
+                  {{- 'newsletter.success' | t }}
+                </h3>
+                <script>
+                  var checkSatellite = setInterval(function(){
+                    if (typeof variable !== 'undefined') {
+                  		_satellite.track('email sign-up');
+                      	clearInterval(checkSatellite);
+                    }
+                  },100);
+                </script>
+              {%- endif -%}
+              <p class="caption{% if shop.name == 'Twenty One Pilots' %} caption-width{% endif %}">
+                <small
+                  >I agree to receive personalized updates and marketing messages based on my information, interests,
+                  activities, website visits and device data.<br>
+                  For more information about how we use your personal information, please see our
+                  <a class="link--text" href="https://privacy.wmg.com/ecom/privacy-policy">Privacy Policy</a>.</small
+                >
+              </p>
+            {% endform %}
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% comment %}Added by Fernando Daniel at EY on May 2th, 2023{% endcomment %}
+{% if settings.cip_enabled == true %}
+  {% render 'cip', newsletter_section_id: section.id %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.newsletter.name",
+  "tag": "section",
+  "class": "spaced-section spaced-section--full-width",
+  "settings": [
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "options": [
+        {
+          "value": "accent-1",
+          "label": "t:sections.newsletter.settings.color_scheme.options__1.label"
+        },
+        {
+          "value": "accent-2",
+          "label": "t:sections.newsletter.settings.color_scheme.options__2.label"
+        },
+        {
+          "value": "background-1",
+          "label": "t:sections.newsletter.settings.color_scheme.options__3.label"
+        },
+        {
+          "value": "background-2",
+          "label": "t:sections.newsletter.settings.color_scheme.options__4.label"
+        },
+        {
+          "value": "inverse",
+          "label": "t:sections.newsletter.settings.color_scheme.options__5.label"
+        }
+      ],
+      "default": "background-1",
+      "label": "t:sections.newsletter.settings.color_scheme.label"
+    },
+    {
+      "type": "range",
+      "id": "background_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "unit": "%",
+      "label": "t:sections.newsletter.settings.background_opacity.label",
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "default": true,
+      "label": "t:sections.newsletter.settings.full_width.label"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.newsletter.settings.paragraph.content"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.newsletter.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Subscribe to our emails",
+          "label": "t:sections.newsletter.blocks.heading.settings.heading.label"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "name": "t:sections.newsletter.blocks.paragraph.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Be the first to know about new collections and exclusive offers.</p>",
+          "label": "t:sections.newsletter.blocks.paragraph.settings.paragraph.label"
+        }
+      ]
+    },
+    {
+      "type": "email_form",
+      "name": "t:sections.newsletter.blocks.email_form.name",
+      "limit": 1
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.newsletter.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "paragraph"
+        },
+        {
+          "type": "email_form"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
