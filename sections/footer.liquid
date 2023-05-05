@@ -427,6 +427,11 @@
   </div>
 </footer>
 
+{% comment %}Added by Fernando Daniel at EY on May 2th, 2023{% endcomment %}
+{% if settings.cip_enabled == true %}
+  {% render 'cip', footer_section_id: section.id %}
+{% endif %}
+
 {% schema %}
 {
   "name": "t:sections.footer.name",
