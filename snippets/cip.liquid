@@ -50,6 +50,8 @@
 function cip_post_request() {
 
   {% comment %} Payload variables {% endcomment %}
+
+  // Minimum parameters
   {% if page_title contains 'Checkout' %}
     const email = '{{ checkout.email }}';
   {% else %}
@@ -59,20 +61,28 @@ function cip_post_request() {
   const dataSource = '{{ settings.cip_artist }}_{{ settings.cip_campaign }}_{{ form_of_sign_up }}_Shopify';
   const ref_url = '{{ shop.url }}';
 
-  console.log(email)
-  console.log(newsletterId)
-  console.log(dataSource)
-  console.log(ref_url)
-  
-  const url = `https://signup.wmg.com/register`;
+  // Artist Signup + Consent Text Parameters
+  {% unless checkout.buyer_accepts_marketing == blank  %}
+    const artist_mktg_consent = '{{ checkout.buyer_accepts_marketing }}';
+  {% else %}
+    const artist_mktg_consent = 'false';
+  {% endunless %}
+  const artist_mktg_consent_txt = 'I agree to receive personalized updates and marketing messages based on my information, interests, activities, website visits and device data.<br>For more information about how we use your personal information, please see our<a class="link--text" href="https://privacy.wmg.com/ecom/privacy-policy">Privacy Policy</a>.';
 
+  {% comment %} End of Payload variables {% endcomment %}
+
+  
   {% comment %} POST Request {% endcomment %}
+
+  // const url = `https://reqres.in/api/users`;
+  const url = `https://signup.wmg.com/register`;
+  
   fetch(url, {
     method: 'POST',
     headers: {
       'Accept': 'text/html'
     },
-    body: JSON.stringify({ email, newsletterId, dataSource, ref_url })
+    body: JSON.stringify({ email, newsletterId, dataSource, ref_url, artist_mktg_consent, artist_mktg_consent_txt })
   })
   .then(response => response.text())
   .then(data => {
@@ -84,6 +94,7 @@ function cip_post_request() {
 
   console.log('Submitted Form ', url)
 }
+  {% comment %} End of POST Request {% endcomment %}
 
 console.log('CIP loaded')
 
