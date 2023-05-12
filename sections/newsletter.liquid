@@ -226,14 +226,17 @@
                   },100);
                 </script>
               {%- endif -%}
-              <p class="caption{% if shop.name == 'Twenty One Pilots' %} caption-width{% endif %}">
-                <small
-                  >I agree to receive personalized updates and marketing messages based on my information, interests,
-                  activities, website visits and device data.<br>
-                  For more information about how we use your personal information, please see our
-                  <a class="link--text" href="https://privacy.wmg.com/ecom/privacy-policy">Privacy Policy</a>.</small
-                >
-              </p>
+              <div class="privacy-policy-container">
+                <input type="checkbox">
+                <p class="caption{% if shop.name == 'Twenty One Pilots' %} caption-width{% endif %}">
+                  <small
+                    >I agree to receive personalized updates and marketing messages based on my information, interests,
+                    activities, website visits and device data. For more information about how we use your personal
+                    information, please see our
+                    <a class="link--text" href="https://privacy.wmg.com/ecom/privacy-policy">Privacy Policy</a>.</small
+                  >
+                </p>
+              </div>
             {% endform %}
           </div>
       {%- endcase -%}
