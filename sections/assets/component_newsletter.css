@@ -80,3 +80,7 @@ div.privacy-policy-container > p {
 .newsletter-form__button .icon {
   width: 1.5rem;
 }
+
+#alertParagraph {
+  margin-top: 20px;
+}
