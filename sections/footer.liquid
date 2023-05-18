@@ -154,6 +154,7 @@
                     {{ 'newsletter.label' | t }}
                   </label>
                   <button
+                    onclick="preventSubmit(event)"
                     type="submit"
                     class="newsletter-form__button field__button"
                     name="commit"
@@ -190,15 +191,19 @@
                   },100);
                 </script>
               {%- endif -%}
+              <small id="alertParagraph" class="newsletter-form__message form__message" style="display: none">
+                {%- render 'icon-error' %}Checkbox is unchecked. Submission prevented.</small
+              >
             {%- endform -%}
             <div class="privacy-policy-container">
-              <input type="checkbox">
+              <input type="hidden" name="customer[accepts_marketing]" value="false">
+              <input id="newsletterCheckbox" type="checkbox" name="customer[accepts_marketing]">
               <p class="caption">
-                <small
+                <label
                   >I agree to receive personalized updates and marketing messages based on my information, interests,
                   activities, website visits and device data. For more information about how we use your personal
                   information, please see our
-                  <a class="link--text" href="https://privacy.wmg.com/ecom/privacy-policy">Privacy Policy</a>.</small
+                  <a class="link--text" href="https://privacy.wmg.com/ecom/privacy-policy">Privacy Policy</a>.</label
                 >
               </p>
             </div>
